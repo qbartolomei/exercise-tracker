@@ -18,6 +18,14 @@ app.get('/', (req, res) => {
   res.sendFile(__dirname + '/views/index.html')
 });
 
+// my code
+
+app.get('/api', function(req, res) {
+  
+});
+
+// end my code
+
 
 // Not found middleware
 app.use((req, res, next) => {

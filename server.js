@@ -21,7 +21,7 @@ app.get('/', (req, res) => {
 // my code
 
 app.get('/api', function(req, res) {
-  
+  res.send('Hello world');
 });
 
 // end my code

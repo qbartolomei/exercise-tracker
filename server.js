@@ -54,10 +54,21 @@ app.post('/api/exercise/new-user', function(req, res) {
 // with the same info as when creating a user.
 app.get('/api/exercise/users', function(req, res) {
   User.find({}, function(err, users) {
+    if (err) return console.error(err);
     res.send(users);
   });
 });
 
+// I can add an exercise to any user by posting form data userId(_id),
+// description, duration, and optionally date to /api/exercise/add. 
+// If no date supplied it will use current date. 
+// Returned will be the user object with also with the exercise 
+// fields added.
+
+app.post('/api/exercise/add', function(req, res) {
+  //{"userId":"123","description":"asd","duration":"11","date":""}
+  res.send(req.body);
+});
 
 // end my code
 

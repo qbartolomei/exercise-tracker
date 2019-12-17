@@ -33,18 +33,27 @@ var userSchema = new Schema({
 var User = mongoose.model('User', userSchema);
 
 app.get('/api', function(req, res) {
-  var username = "replace this";
-  var newUser = new User({
-    username
-  });
   res.send('Hello world');
 });
 
 // I can create a user by posting form data username to /api/exercise/new-user 
 // and returned will be an object with username and _id.
 app.post('/api/exercise/new-user', function(req, res) {
-  res.send(req.body);
+  var username = req.body.username;
+  var newUser = new User({
+    username
+  });
+  newUser.save(function(err, user) {
+    if (err) return console.error(err);
+    res.send(user);
+  });
   //console.log(req.body);
+});
+
+// I can get an array of all users by getting api/exercise/users 
+// with the same info as when creating a user.
+app.get('/api/exercise/users', function(req, res) {
+  User.find({}, function)
 });
 
 

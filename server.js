@@ -30,9 +30,13 @@ var Schema = mongoose.Schema;
 var userSchema = new Schema({
   username: String
 });
+var User = mongoose.model('User', userSchema);
 
 app.get('/api', function(req, res) {
-  var user = mongoose.model('User', userSchema)
+  var username = "replace this";
+  var newUser = new User({
+    username
+  });
   res.send('Hello world');
 });
 

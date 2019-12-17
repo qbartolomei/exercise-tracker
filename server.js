@@ -26,6 +26,11 @@ app.get('/', (req, res) => {
 
 // my code
 
+var Schema = mongoose.Schema;
+var userSchema = new Schema({
+  username: String
+});
+
 app.get('/api', function(req, res) {
   res.send('Hello world');
 });

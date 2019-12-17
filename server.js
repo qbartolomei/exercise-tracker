@@ -32,6 +32,7 @@ var userSchema = new Schema({
 });
 
 app.get('/api', function(req, res) {
+  var user = mongoose.model('User', userSchema)
   res.send('Hello world');
 });
 

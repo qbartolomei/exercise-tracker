@@ -16,7 +16,7 @@ const listener = app.listen(process.env.PORT || 3000, () => {
 app.use(cors())
 
 app.use(bodyParser.urlencoded({extended: true}));
-app.use(bodyParser.json());
+//app.use(bodyParser.json());
 
 
 app.use(express.static('public'))
@@ -33,6 +33,8 @@ app.get('/api', function(req, res) {
 // I can create a user by posting form data username to /api/exercise/new-user 
 // and returned will be an object with username and _id.
 app.post('/api/exercise/new-user', function(req, res) {
+  res.send('Hello world');
+  console.log(req.body);
 });
 
 

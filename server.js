@@ -33,7 +33,7 @@ var userSchema = new Schema({
 var User = mongoose.model('User', userSchema);
 var exerciseSchema = new Schema({
   date: Date,
-  
+  user: { type: Schema.Types.ObjectId.ref, }
 });
 
 app.get('/api', function(req, res) {

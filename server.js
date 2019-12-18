@@ -31,6 +31,10 @@ var userSchema = new Schema({
   username: String
 });
 var User = mongoose.model('User', userSchema);
+var exerciseSchema = new Schema({
+  date: Date,
+  
+});
 
 app.get('/api', function(req, res) {
   res.send('Hello world');
@@ -64,11 +68,13 @@ app.get('/api/exercise/users', function(req, res) {
 // If no date supplied it will use current date. 
 // Returned will be the user object with also with the exercise 
 // fields added.
-
 app.post('/api/exercise/add', function(req, res) {
   //{"userId":"123","description":"asd","duration":"11","date":""}
   res.send(req.body);
 });
+
+//I can retrieve a full exercise log of any user by getting /api/exercise/log with a parameter of userId(_id). Return will be the user object with added array log and count (total exercise count).
+//I can retrieve part of the log of any user by also passing along optional parameters of from & to or limit. (Date format yyyy-mm-dd, limit = int)
 
 // end my code
 

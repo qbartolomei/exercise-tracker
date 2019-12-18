@@ -73,11 +73,9 @@ app.get('/api/exercise/users', function(req, res) {
 // fields added.
 app.post('/api/exercise/add', function(req, res) {
   //{"userId":"123","description":"asd","duration":"11","date":""}
-  var user = User.findOne
-  var newExercise = new Exercise({
-    
-  });
-  res.send(req.body);
+  let id = req.body.userId;
+  let user = User.findById(id);
+  res.send(user.username);
 });
 
 //I can retrieve a full exercise log of any user by getting /api/exercise/log with a parameter of userId(_id). Return will be the user object with added array log and count (total exercise count).

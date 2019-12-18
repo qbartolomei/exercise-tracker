@@ -26,21 +26,24 @@ app.get('/', (req, res) => {
 
 // my code
 
+// Schemas and models
 var Schema = mongoose.Schema;
 var userSchema = new Schema({
   username: String
 });
 var User = mongoose.model('User', userSchema);
+
 var exerciseSchema = new Schema({
   date: Date,
-  user: { type: Schema.Types.ObjectId.ref, }
+  user: { 
+    type: Schema.Types.ObjectId, 
+    ref: 'User', 
+    required: true
+  },
 });
+var Exercise = mongoose.model('Exercise', exerciseSchema);
 
-app.get('/api', function(req, res) {
-  res.send('Hello world');
-});
-
-// I can create a user by posting form data username to /api/exercise/new-user 
+// 1. I can create a user by posting form data username to /api/exercise/new-user 
 // and returned will be an object with username and _id.
 app.post('/api/exercise/new-user', function(req, res) {
   var username = req.body.username;
@@ -54,7 +57,7 @@ app.post('/api/exercise/new-user', function(req, res) {
   //console.log(req.body);
 });
 
-// I can get an array of all users by getting api/exercise/users 
+// 2. I can get an array of all users by getting api/exercise/users 
 // with the same info as when creating a user.
 app.get('/api/exercise/users', function(req, res) {
   User.find({}, function(err, users) {
@@ -63,13 +66,17 @@ app.get('/api/exercise/users', function(req, res) {
   });
 });
 
-// I can add an exercise to any user by posting form data userId(_id),
+// 3. I can add an exercise to any user by posting form data userId(_id),
 // description, duration, and optionally date to /api/exercise/add. 
 // If no date supplied it will use current date. 
 // Returned will be the user object with also with the exercise 
 // fields added.
 app.post('/api/exercise/add', function(req, res) {
   //{"userId":"123","description":"asd","duration":"11","date":""}
+  var user = User.findOne
+  var newExercise = new Exercise({
+    
+  });
   res.send(req.body);
 });
 

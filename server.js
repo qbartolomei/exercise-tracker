@@ -35,7 +35,7 @@ var User = mongoose.model('User', userSchema);
 
 var exerciseSchema = new Schema({
   date: Date,
-  user: { 
+  userId: { 
     type: Schema.Types.ObjectId, 
     ref: 'User', 
     required: true
@@ -76,6 +76,11 @@ app.post('/api/exercise/add', function(req, res) {
   let id = req.body.userId;
   User.findById(id, function(err, user) {
     if (err) return res.send('User not found');
+    let newExercise = new Exercise({
+      userId: user._id,
+      description: req.body.description,
+      
+    });
     res.send(user);
   });
 });

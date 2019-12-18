@@ -34,12 +34,14 @@ var userSchema = new Schema({
 var User = mongoose.model('User', userSchema);
 
 var exerciseSchema = new Schema({
-  date: Date,
   userId: { 
     type: Schema.Types.ObjectId, 
     ref: 'User', 
     required: true
   },
+  date: Date,
+  duration: Number,
+  description: String,
 });
 var Exercise = mongoose.model('Exercise', exerciseSchema);
 
@@ -78,8 +80,9 @@ app.post('/api/exercise/add', function(req, res) {
     if (err) return res.send('User not found');
     let newExercise = new Exercise({
       userId: user._id,
+      date: req.body.date || Date.now,
+      duration: req.body.duration,
       description: req.body.description,
-      
     });
     res.send(user);
   });

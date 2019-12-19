@@ -24,7 +24,7 @@ app.get('/', (req, res) => {
   res.sendFile(__dirname + '/views/index.html')
 });
 
-// my code
+/* --- my code --- */
 
 // Schemas and models
 var Schema = mongoose.Schema;

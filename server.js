@@ -1,37 +1,45 @@
 const express = require('express')
 const app = express()
 const bodyParser = require('body-parser')
-
 const cors = require('cors')
-
 const mongoose = require('mongoose')
-mongoose.connect(process.env.MLAB_URI);
+const shortid = require('shortid');
+require('dotenv').config();
 
+mongoose.connect(process.env.MLAB_URI, function(err, db) {
+  if (err) console.log(err);
+});
 
 const listener = app.listen(process.env.PORT || 3000, () => {
   console.log('Your app is listening on port ' + listener.address().port)
 })
 
-
 app.use(cors())
-
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
-
-
 app.use(express.static('public'))
+
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/views/index.html')
 });
 
-// my code
+/* --- my code --- */
 
 // Schemas and models
 var Schema = mongoose.Schema;
+
 var userSchema = new Schema({
-  username: String
+	username: {
+		type: String,
+		required: true,
+		unique: true,
+	},
+	_id: {
+		type: String,
+		index: true,
+		default: shortid.generate,
+	}
 });
-var User = mongoose.model('User', userSchema);
 
 var exerciseSchema = new Schema({
   userId: { 
@@ -43,17 +51,21 @@ var exerciseSchema = new Schema({
   duration: Number,
   description: String,
 });
+
+var User = mongoose.model('User', userSchema);
 var Exercise = mongoose.model('Exercise', exerciseSchema);
 
 // 1. I can create a user by posting form data username to /api/exercise/new-user 
 // and returned will be an object with username and _id.
+// Example: SylQ9Ot0S
 app.post('/api/exercise/new-user', function(req, res) {
   var username = req.body.username;
   var newUser = new User({
     username
   });
   newUser.save(function(err, user) {
-    if (err) return console.error(err);
+    // duplicate username: code == 11000
+    if (err) return res.send(err);
     res.send(user);
   });
   //console.log(req.body);
@@ -71,8 +83,8 @@ app.get('/api/exercise/users', function(req, res) {
 // 3. I can add an exercise to any user by posting form data userId(_id),
 // description, duration, and optionally date to /api/exercise/add. 
 // If no date supplied it will use current date. 
-// Returned will be the user object with also with the exercise 
-// fields added.
+// Returned will be the user object with also with the exercise fields added.
+// Return Example: {"username":"usernamer","description":"new exedrcise","duration":10,"_id":"SylQ9Ot0S","date":"Thu Dec 19 2019"}
 app.post('/api/exercise/add', function(req, res) {
   //{"userId":"123","description":"asd","duration":"11","date":""}
   let id = req.body.userId;
@@ -84,12 +96,19 @@ app.post('/api/exercise/add', function(req, res) {
       duration: req.body.duration,
       description: req.body.description,
     });
-    res.send(user);
+    newExercise.save(function(err, savedExercise) {
+      if (err) return console.log(err);
+      res.send(user, savedExercise);
+    });
   });
 });
 
-//I can retrieve a full exercise log of any user by getting /api/exercise/log with a parameter of userId(_id). Return will be the user object with added array log and count (total exercise count).
-//I can retrieve part of the log of any user by also passing along optional parameters of from & to or limit. (Date format yyyy-mm-dd, limit = int)
+//4. I can retrieve a full exercise log of any user by getting /api/exercise/log with a parameter of userId(_id).
+// Return will be the user object with added array log and count (total exercise count).
+
+
+//5. I can retrieve part of the log of any user by also passing along optional parameters of from & to or limit.
+// (Date format yyyy-mm-dd, limit = int)
 
 // end my code
 

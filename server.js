@@ -107,19 +107,21 @@ app.post('/api/exercise/add', function(req, res) {
     });
     newExercise.save(function(err, savedExercise) {
       if (err) return console.log(err);
-      res.json(exerciseToString(savedExercise));
+      res.json({
+        username: savedExercise.username,
+        _id: savedExercise.userId,
+        ...exerciseToString(savedExercise),
+      });
     });
   });
 });
 
 const exerciseToString = function(exercise) {
-  return ({
-		username: exercise.username,
+  return {
 		description: exercise.description,
 		duration: exercise.duration,
-		_id: exercise.userId,
 		date: moment(exercise.date).format('dddd MMM DD YYYY'),
-  });
+  };
 }
 
 //4. I can retrieve a full exercise log of any user by getting /api/exercise/log with a parameter of userId(_id).
@@ -133,12 +135,8 @@ const exerciseToString = function(exercise) {
     "log":[
       {"description":"new exedrcise","duration":10,"date":"Sat Dec 21 2019"},
       {"description":"new exedrcise","duration":10,"date":"Sat Dec 21 2019"},
-      {"description":"dar something 2","duration":2000000,"date":"Mon Apr 15 2019"},
-      {"description":"dar something 3","duration":2000000333,"date":"Sat Apr 13 2019"},
-      {"description":"test","duration":10,"date":"Wed Sep 19 2018"},
-      {"description":"4","duration":444,"date":"Fri Jan 06 2017"},
-      {"description":"ererer","duration":32,"date":"Fri Jan 06 2017"},
-      {"description":"runnningggg","duration":23,"date":"Fri Jan 06 2017"}]}
+    ]
+  }
 */
 
 //5. I can retrieve part of the log of any user by also passing along optional parameters of from & to or limit.
@@ -159,12 +157,8 @@ app.get('/api/exercise/log', function(req, res) {
         count: exercises.length,
         log: exercises.map(exerciseToString),
       });
-
     });
-
   });
-
-  res.send({ userId, from, to });
 });
 
 

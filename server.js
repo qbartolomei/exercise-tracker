@@ -54,14 +54,14 @@ var exerciseSchema = new Schema({
 	description: String,
 });
 
-var User = mongoose.model('User', userSchema);
-var Exercise = mongoose.model('Exercise', exerciseSchema);
+var Users = mongoose.model('User', userSchema);
+var Exercises = mongoose.model('Exercise', exerciseSchema);
 
 // Done // 1. I can create a user by posting form data username to /api/exercise/new-user 
 // Done // and returned will be an object with username and _id.
 app.post('/api/exercise/new-user', function(req, res) {
   var username = req.body.username;
-  var newUser = new User({
+  var newUser = new Users({
     username
   });
   newUser.save(function(err, user) {
@@ -76,7 +76,7 @@ app.post('/api/exercise/new-user', function(req, res) {
 // Done // 2. I can get an array of all users by getting api/exercise/users 
 // Done // with the same info as when creating a user.
 app.get('/api/exercise/users', function(req, res) {
-  User.find({}, function(err, users) {
+  Users.find({}, function(err, users) {
     if (err) return console.error(err);
     res.send(users);
   });
@@ -92,30 +92,35 @@ app.get('/api/exercise/users', function(req, res) {
 app.post('/api/exercise/add', function(req, res) {
   //{"userId":"123","description":"asd","duration":"11","date":""}
   let id = req.body.userId;
-  User.findById(id, function(err, user) {
+  Users.findById(id, function(err, user) {
     if (err) return res.send('User not found');
     let dateRegex = /^[0-9]{4}\-[0-9]{2}\-[0-9]{1,2}$/;
-    console.log(inputDate, dateIsValid, Date.now(), moment().format('dddd MMM DD YYYY') );
-    let newExercise = new Exercise({
+    let dateIsValid = dateRegex.test(req.body.date);
+    let date = dateIsValid ? req.body.date : Date.now();
+    console.log(dateIsValid, date);
+    let newExercise = new Exercises({
       username: user.username,
       userId: user._id,
-      date: Date.now(),
+      date,
       duration: req.body.duration,
       description: req.body.description,
     });
     newExercise.save(function(err, savedExercise) {
       if (err) return console.log(err);
-      savedExercise.date = moment(savedExercise.date).format('dddd MMM DD YYYY');
-      res.json({
-        username: user.username,
-        description: savedExercise.description,
-        duration: savedExercise.duration,
-        _id: user._id,
-        date: moment(savedExercise.date).format('dddd MMM DD YYYY')
-      });
+      res.json(exerciseToString(savedExercise));
     });
   });
 });
+
+const exerciseToString = function(exercise) {
+  return ({
+		username: exercise.username,
+		description: exercise.description,
+		duration: exercise.duration,
+		_id: exercise.userId,
+		date: moment(exercise.date).format('dddd MMM DD YYYY'),
+  });
+}
 
 //4. I can retrieve a full exercise log of any user by getting /api/exercise/log with a parameter of userId(_id).
 // Return will be the user object with added array log and count (total exercise count).
@@ -138,10 +143,27 @@ app.post('/api/exercise/add', function(req, res) {
 
 //5. I can retrieve part of the log of any user by also passing along optional parameters of from & to or limit.
 // (Date format yyyy-mm-dd, limit = int)
-app.get('/api/log', function(req, res) {
+app.get('/api/exercise/log', function(req, res) {
   let userId = req.query.userId;
   let from = req.query.from;
   let to = req.query.to;
+
+  Users.findById(userId, function(err, user){
+    if (err) return console.log(err);
+    Exercises.find({userId}, function(err, exercises) {
+      if (err) return console.log(err);
+      console.log(exercises);
+      res.json({
+        _id: user._id,
+        username: user.username,
+        count: exercises.length,
+        log: exercises.map(exerciseToString),
+      });
+
+    });
+
+  });
+
   res.send({ userId, from, to });
 });
 

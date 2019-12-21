@@ -94,26 +94,48 @@ app.post('/api/exercise/add', function(req, res) {
   let id = req.body.userId;
   User.findById(id, function(err, user) {
     if (err) return res.send('User not found');
-    let dateRegex = /[0-9]{4}\-[0-9]{2}\-[0-9]{1,2}/;
-    let inputDate = new Date(req.body.date);
-    let dateIsValid = !isNaN(inputDate.getTime());
-    console.log(inputDate, dateIsValid, Date.now());
+    let dateRegex = /^[0-9]{4}\-[0-9]{2}\-[0-9]{1,2}$/;
+    console.log(inputDate, dateIsValid, Date.now(), moment().format('dddd MMM DD YYYY') );
     let newExercise = new Exercise({
       username: user.username,
       userId: user._id,
-      date: "",
+      date: Date.now(),
       duration: req.body.duration,
       description: req.body.description,
     });
     newExercise.save(function(err, savedExercise) {
       if (err) return console.log(err);
-      res.json(savedExercise);
+      savedExercise.date = moment(savedExercise.date).format('dddd MMM DD YYYY');
+      res.json({
+        username: user.username,
+        description: savedExercise.description,
+        duration: savedExercise.duration,
+        _id: user._id,
+        date: moment(savedExercise.date).format('dddd MMM DD YYYY')
+      });
     });
   });
 });
 
 //4. I can retrieve a full exercise log of any user by getting /api/exercise/log with a parameter of userId(_id).
 // Return will be the user object with added array log and count (total exercise count).
+
+/* Example output:
+  {
+    "_id":"HJPrhPnBx",
+    "username":"joe",
+    "count":8,
+    "log":[
+      {"description":"new exedrcise","duration":10,"date":"Sat Dec 21 2019"},
+      {"description":"new exedrcise","duration":10,"date":"Sat Dec 21 2019"},
+      {"description":"dar something 2","duration":2000000,"date":"Mon Apr 15 2019"},
+      {"description":"dar something 3","duration":2000000333,"date":"Sat Apr 13 2019"},
+      {"description":"test","duration":10,"date":"Wed Sep 19 2018"},
+      {"description":"4","duration":444,"date":"Fri Jan 06 2017"},
+      {"description":"ererer","duration":32,"date":"Fri Jan 06 2017"},
+      {"description":"runnningggg","duration":23,"date":"Fri Jan 06 2017"}]}
+*/
+
 //5. I can retrieve part of the log of any user by also passing along optional parameters of from & to or limit.
 // (Date format yyyy-mm-dd, limit = int)
 app.get('/api/log', function(req, res) {

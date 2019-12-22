@@ -94,9 +94,7 @@ app.post('/api/exercise/add', function(req, res) {
   let id = req.body.userId;
   Users.findById(id, function(err, user) {
     if (err) return res.send('User not found');
-    let dateRegex = /^[0-9]{4}\-[0-9]{2}\-[0-9]{1,2}$/;
-    let dateIsValid = dateRegex.test(req.body.date);
-    let date = dateIsValid ? req.body.date : Date.now();
+    let date = dateIsValid(req.body.date) ? req.body.date : Date.now();
     console.log(dateIsValid, date);
     let newExercise = new Exercises({
       username: user.username,
@@ -124,6 +122,11 @@ const exerciseToString = function(exercise) {
   };
 }
 
+const dateIsValid = function(date) {
+  let dateRegex = /^[0-9]{4}\-[0-9]{1,2}\-[0-9]{1,2}$/;
+  return dateRegex.test(date);
+}
+
 //4. I can retrieve a full exercise log of any user by getting /api/exercise/log with a parameter of userId(_id).
 // Return will be the user object with added array log and count (total exercise count).
 
@@ -145,20 +148,35 @@ app.get('/api/exercise/log', function(req, res) {
   let userId = req.query.userId;
   let from = req.query.from;
   let to = req.query.to;
+  let limit = req.query.limit;
 
-  Users.findById(userId, function(err, user){
+  from = dateIsValid(from) ? from : new Date(0);
+  to = dateIsValid(to) ? to : Date.now();
+  console.log(from, to);
+  Users.findById(userId, function(err, user) {
     if (err) return console.log(err);
-    Exercises.find({userId}, function(err, exercises) {
+    let exerciseQuery = {
+      userId,
+      date: {
+        $lte: to,
+        $gte: from
+      }
+    }
+    let exerciseProjection = '';
+    let exerciseQueryOptions = { limit }
+    Exercises.find(exerciseQuery, function(err, exercises) {
       if (err) return console.log(err);
       console.log(exercises);
+      if (limit <= 0) limit = exercises.length;
       res.json({
         _id: user._id,
         username: user.username,
         count: exercises.length,
-        log: exercises.map(exerciseToString),
+        log: exercises.slice(0, limit).map(exerciseToString),
       });
     });
   });
+
 });
 
 

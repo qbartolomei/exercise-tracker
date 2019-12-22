@@ -149,10 +149,9 @@ app.get('/api/exercise/log', function(req, res) {
   let from = req.query.from;
   let to = req.query.to;
   let limit = req.query.limit;
-
   from = dateIsValid(from) ? from : new Date(0);
   to = dateIsValid(to) ? to : Date.now();
-  console.log(from, to);
+
   Users.findById(userId, function(err, user) {
     if (err) return console.log(err);
     let exerciseQuery = {

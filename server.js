@@ -141,7 +141,6 @@ const dateIsValid = function(date) {
     ]
   }
 */
-
 //5. I can retrieve part of the log of any user by also passing along optional parameters of from & to or limit.
 // (Date format yyyy-mm-dd, limit = int)
 app.get('/api/exercise/log', function(req, res) {

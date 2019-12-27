@@ -108,19 +108,13 @@ app.post('/api/exercise/add', function(req, res) {
       res.json({
         username: savedExercise.username,
         _id: savedExercise.userId,
-        ...exerciseToString(savedExercise),
+        description: savedExercise.description,
+        duration: savedExercise.duration,
+        date: moment(savedExercise.date).format('dddd MMM DD YYYY'),
       });
     });
   });
 });
-
-const exerciseToString = function(exercise) {
-  return {
-		description: exercise.description,
-		duration: exercise.duration,
-		date: moment(exercise.date).format('dddd MMM DD YYYY'),
-  };
-}
 
 const dateIsValid = function(date) {
   let dateRegex = /^[0-9]{4}\-[0-9]{1,2}\-[0-9]{1,2}$/;
@@ -160,17 +154,25 @@ app.get('/api/exercise/log', function(req, res) {
         $gte: from
       }
     }
-    let exerciseProjection = '';
+    let exerciseProjection = {
+      description: 1,
+      duration: 1,
+      date: 1,
+      _id: 0,
+    }
     let exerciseQueryOptions = { limit }
-    Exercises.find(exerciseQuery, function(err, exercises) {
+    Exercises.find(exerciseQuery, exerciseProjection).lean().exec(function(err, exercises) {
       if (err) return console.log(err);
       console.log(exercises);
       if (limit <= 0) limit = exercises.length;
+      exercises
+			.slice(0, limit)
+			.forEach(exercise => (exercise.date = moment(exercise.date).format('dddd MMM DD YYYY')));
       res.json({
         _id: user._id,
         username: user.username,
         count: exercises.length,
-        log: exercises.slice(0, limit).map(exerciseToString),
+        log: exercises,
       });
     });
   });
